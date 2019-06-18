@@ -1,9 +1,13 @@
-FROM tomcat
+FROM tomcat:8.5
 
-COPY . .
+RUN apt-get update && apt-get -y upgrade
 
-RUN apt-get update ; apt-get install maven default-jdk -y ; update-alternatives --config javac
+WORKDIR /usr/local/tomcat
 
-RUN mvn clean package ; cp target/*.war /usr/local/tomcat/webapps/
+ADD tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
+ADD context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
+COPY target/*.war   /usr/local/tomcat/webapps/app.war
 
-CMD ["catalina.sh","run"]
+
+EXPOSE 8080
+

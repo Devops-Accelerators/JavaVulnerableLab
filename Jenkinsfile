@@ -72,7 +72,7 @@ node {
 			}
     }
     
-  /*  stage ('create war')
+    stage ('create war')
     {
     	try{
 	mavenbuildexec "mvn build"
@@ -99,6 +99,11 @@ node {
 				throw error
 			}
     }
+    stage ('Scan Container Images')
+    {
+    	sh 'echo "docker.io/${docImg} 'pwd'/Dockerfile" > anchore_images'
+	anchore 'anchore_images' 
+    }
     
      stage ('Push Image to Docker Registry')
     { 
@@ -115,7 +120,14 @@ node {
 			}
     }
     
-    stage ('Config helm')
+    Stage (Clean Up)
+    {
+    	sh """
+	for i in "cat anchore_images | awk '{print $1}'";do docker rmi $i;done
+	"""
+    }
+    
+   /* stage ('Config helm')
     { 
     	
 	try{
@@ -165,7 +177,7 @@ node {
 		
 	sh """
 		echo ${targetURL}
-		export ARCHERY_HOST=http://ec2-63-33-228-104.eu-west-1.compute.amazonaws.com:8000
+		export ARCHERY_HOST=props['deploy.archery']
 		export TARGET_URL='http://${targetURL}/app'
 		bash /var/lib/jenkins/archery/zapscan.sh || true
 	"""

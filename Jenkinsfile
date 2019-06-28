@@ -101,8 +101,16 @@ node {
     }
     stage ('Scan Container Images')
     {
-    	sh 'rm anchore_images || true'
-    	sh """echo "${docImg} `pwd`/Dockerfile" > anchore_images"""
+    	sh """
+	docker-compose down || true
+	sleep 3
+	cd /var/lib/jenkins/aevolume
+	docker-compose up -d
+	cd -
+	"""
+	
+	sh 'rm anchore_images || true'
+    	sh """echo "${docImg}:${BUILD_NUMBER} `pwd`/Dockerfile" > anchore_images"""
 	anchore 'anchore_images' 
     }
     

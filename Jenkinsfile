@@ -35,6 +35,12 @@ node {
 	sh "rm trufflehog || true"
 	sh "docker run gesellix/trufflehog --json --regex ${props['deploy.gitURL']} > trufflehog"
 	sh "cat trufflehog"
+	
+	File file = new File("trufflehog");
+	if (file.length() == 0)
+	{
+		sh 'echo "Trufflehog didn't find any secrets. We are good to go !"' 
+	}
 	}
 	catch (error) {
 				currentBuild.result='FAILURE'
@@ -48,7 +54,7 @@ node {
     {
          try{
 	 
-	snykSecurity projectName: "${props['deploy.microservice']}", severity: 'high', snykInstallation: 'SnykSec', snykTokenId: 'snyk-personal', targetFile: './pom.xml'
+	snykSecurity projectName: "${props['deploy.microservice']}", severity: 'high', snykInstallation: 'SnykSec', snykTokenId: 'snyk-personal', targetFile: '.'
 	 
 	 }
 	 catch (error) {
@@ -117,10 +123,17 @@ node {
     
     stage ('Scan Container Images')
     {
-	
+	try{
 	sh 'rm anchore_images || true'
     	sh """echo "${docImg}:${BUILD_NUMBER} `pwd`/Dockerfile" > anchore_images"""
-	anchore 'anchore_images' 
+	anchore 'anchore_images'
+	}
+	catch (error) {
+				currentBuild.result='FAILURE'
+				notifyBuild(currentBuild.result, "At Stage Push Image to Docker Registry", commit_Email, "",props['deploy.archery'])
+				echo """${error.getMessage()}"""
+				throw error
+		}
     }
     
    /* stage ('Config helm')

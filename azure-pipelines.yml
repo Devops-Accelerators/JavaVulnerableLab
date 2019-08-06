@@ -12,10 +12,11 @@ pool:
 
 steps:
 - script: echo Hello, world!
+  script: ls -al
   displayName: 'Run a one-line script'
 - task: Snyk@2
   inputs:
-    file: 'pom.xml'
+    file: '.'
     protect: false
     test: true
     monitor: true

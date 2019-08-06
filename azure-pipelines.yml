@@ -22,7 +22,7 @@ steps:
     #monitor: true
     authType: 'endpoint'
     endpoint: 'snyk'
-    #failBuild: true
+    failBuild: false
     dev: false
     trustPolicies: false
 

@@ -15,7 +15,7 @@ steps:
   displayName: 'Run a one-line script'
 - task: Snyk@2
   inputs:
-    file: '.'
+    file: 'default'
     protect: false
     test: true
     monitor: true

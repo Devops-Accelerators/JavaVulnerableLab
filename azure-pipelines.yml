@@ -1,5 +1,6 @@
 # Starter pipeline
 
+
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
@@ -21,9 +22,21 @@ steps:
     #monitor: true
     authType: 'endpoint'
     endpoint: 'snyk'
-    failBuild: true
+    #failBuild: true
     dev: false
     trustPolicies: false
+
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    options: 'clean install'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    mavenVersionOption: 'Default'
+    mavenAuthenticateFeed: false
+    effectivePomSkip: false
+    sonarQubeRunAnalysis: false
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.

@@ -18,7 +18,7 @@ steps:
     file: 'pom.xml'
     protect: false
     test: true
-    monitor: true
+    #monitor: true
     authType: 'endpoint'
     endpoint: 'snyk'
     failBuild: true

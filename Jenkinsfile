@@ -106,6 +106,23 @@ node {
 			}
     }
     
+     stage ('Scan Container Images')
+    {
+	try{
+	
+	sh 'rm anchore_images || true'
+    	sh """echo "${docImg}:${BUILD_NUMBER}" > anchore_images"""
+	anchore 'anchore_images'
+	
+	}
+	catch (error) {
+				currentBuild.result='FAILURE'
+				notifyBuild(currentBuild.result, "At Stage Push Image to Docker Registry", commit_Email, "",props['deploy.archery'])
+				echo """${error.getMessage()}"""
+				throw error
+		}
+    }
+    
     stage ('Push Image to Docker Registry')
     { 
 	     try{
@@ -119,23 +136,6 @@ node {
 				echo """${error.getMessage()}"""
 				throw error
 			}
-    }
-    
-    stage ('Scan Container Images')
-    {
-	try{
-	steps{
-	sh 'rm anchore_images || true'
-    	sh """echo "${docImg}:${BUILD_NUMBER}" > anchore_images"""
-	anchore 'anchore_images'
-	}
-	}
-	catch (error) {
-				currentBuild.result='FAILURE'
-				notifyBuild(currentBuild.result, "At Stage Push Image to Docker Registry", commit_Email, "",props['deploy.archery'])
-				echo """${error.getMessage()}"""
-				throw error
-		}
     }
     
     stage ('Config helm')
